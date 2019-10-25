@@ -1,67 +1,137 @@
 <!DOCTYPE html>
 <html>
+​
 
 <head>
   <meta charset="utf-8">
-  <title>Flask Practice</title>
+  <title>Benford's Law</title>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
+​
 
 <body>
-  <h1>Benford's Law</h1>
-  <p>Upload your data</p>
+  ​
+  <header id="header">
+    <h1>Benford's Law</h1>
+    <p id="info-paragraph">In 1938, Frank Benford published a paper showing the distribution of the leading digit in
+      many disparate sources of data.In all these sets of data, the number 1 was the leading digit about 30% of the
+      time. Benford’s law has been found to apply to population numbers, death rates, lengths of rivers, mathematical
+      distributions given by some power law, and physical constants like atomic weights and specific heats.</p>
+  </header>
+
   <form method=POST enctype=multipart/form-data action="http://localhost:5000">
-    <input type="file" name="file" accept=".txt"/>
+    <h4 id="upload-prompt">Upload your data here to see if Benford's Law applies to it!</h4>
+    <input type="file" name="file" accept=".txt" />
     <input type="submit" />
   </form>
-  <canvas id="myChart" width="auto" height="160vh"></canvas>
+  
+  <canvas id="myChart" width="auto" height="100vh"></canvas>
   ​
   <script>
     var ctx = document.getElementById('myChart').getContext('2d');
     var myChart = new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: {
         labels: [1, 2, 3, 4, 5, 6, 7, 8, 9],
         datasets: [{
           label: 'Expected Distribution',
-          data: [30, 17, 12, 9, 7, 6, 5, 4, 3],
-          backgroundColor: [
-            'rgba(54, 162, 235, 01)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(54, 162, 235, 0.2)'
+          fill: false,
+          data: [
+            {% for val in expected %}
+              {{ val }},
+              {% endfor %}
           ],
-
+          backgroundColor: ['rgba(255, 99, 132, 1)'],
+          borderWidth: 3,
+          borderColor: [
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(255, 99, 132, 0.5)',
+          ],
         },
         {
-          label: 'Actual Distribution',
-          data: [25, 29, 13, 9, 12, 9, 4, 2, 1],
-          backgroundColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(255, 99, 132, 0.2)'
+          label: 'Your Data\'s Actual Distribution',
+          fill: false,
+          data: [
+            {% for val in actual %}
+              {{ val }},
+              {% endfor %}
           ],
-
+          backgroundColor: ['rgba(54, 162, 235, 1)'],
+          borderWidth: 4,
+          borderColor: [
+            'rgba(54, 162, 235, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(54, 162, 235, 1)'
+          ]
         }]
       },
-      options: {
-        scales: {
-          xAxes: [{ stacked: true }],
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            },
-            stacked: false
-          }]
+    options: {
+      legend: {
+        labels: {
+          fontColor: "white"
         }
+      },
+      scales: {
+        xAxes: [{
+          offset: true,
+          scaleLabel: {
+            display: true,
+            labelString: "First Integer",
+            fontColor: "white"
+          },
+          ticks: {
+            beginAtZero: true,
+            fontSize: 18,
+            fontFamily: "sans-serif",
+            fontColor: "white"
+          },
+          stacked: false,
+          gridLines: {
+            display: true,
+            color: "#FFFFFF",
+            lineWidth: 1,
+          },
+        }],
+          yAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'Occurrence Percentage',
+              fontColor: "white"
+            },
+            ticks: {
+              beginAtZero: true,
+              fontSize: 18,
+              fontFamily: "sans-serif",
+              fontColor: "white",
+              callback: function (value) {
+                return value.toLocaleString('de-DE', { style: 'percent' })},
+            },
+            stacked: false,
+            gridLines: {
+              display: true,
+              color: "#FFFFFF",
+              lineWidth: 1,
+            },
+          }]
       }
+    }
     });
   </script>
 </body>
+​
 
 </html>

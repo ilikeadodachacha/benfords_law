@@ -1,9 +1,10 @@
 import os
 from flask import Flask, render_template, request, redirect
-
 app = Flask(__name__)
 
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+@app.route("/healthCheck")
+def check():
+  return "OK!"
 
 @app.route("/", methods=['GET','POST'])
 def home():
@@ -11,20 +12,31 @@ def home():
     return render_template("home.html")
 
   if request.method == 'POST':
-    target = os.path.join(APP_ROOT, 'uploads/')
-    print(target)
-
+    def IsInteger(s):
+      try:
+        int(s)
+        return True
+      except ValueError:
+        return False
+    numints = 0
+    counts = [0, 0, 0, 0, 0, 0, 0, 0, 0]
     for file in request.files.getlist("file"):
-      print(file)
-      filename = file.filename
-      destination = "/".join([target, filename])
-      print(destination)
-      readfile = file.read()
-      filearray = readfile.split('\n')
-      print(filearray)
-      # file.save(destination) 
+  
+      readfile = file.read().decode("utf-8")
+        
+      readfile = readfile.split()
 
-    return render_template("home.html")
+      for item in readfile:
+        if IsInteger(item):
+          firstdig = int(item[0])
+          idx = firstdig - 1
+          numints = numints + 1
+          counts[idx] = counts[idx] + 1
+
+  expected_dist = [0.30, 0.18, 0.12, 0.09, 0.08, 0.07, 0.06, 0.05, 0.04]
+  actual_dist = list(map(lambda x: float(x / numints), counts))
+    
+  return render_template("home.html", expected=expected_dist, actual=actual_dist)
 
 if __name__ == "__main__":
-  app.run(debug=True)
+  app.run(host= '0.0.0.0')
